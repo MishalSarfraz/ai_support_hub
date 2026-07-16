@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Support Hub - Contact Form</title>
+    <style>
+        /* CSS Reset & Variable Setup */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Responsive Form Container */
+        .form-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        p.subtitle {
+            margin-bottom: 24px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #444;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        /* Button styling */
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #0052a3;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* Status Messages */
+        .status-msg {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>Submit a Support Request</h2>
+        <p class="subtitle">Please fill out the form below. Our automated system will triage your issue immediately.</p>
+        
+        <form id="supportForm" novalidate>
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" placeholder="John Doe" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <!-- Native type="email" helps with mobile keyboards & basic validation -->
+                <input type="email" id="email" name="email" placeholder="john@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category" required>
+                    <option value="" disabled selected>-- Select a Category --</option>
+                    <option value="Technical">Technical</option>
+                    <option value="Billing">Billing</option>
+                    <option value="Account">Account</option>
+                    <option value="Product">Product</option>
+                    <option value="Urgent">Urgent</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="message">Describe your issue</label>
+                <textarea id="message" name="message" rows="5" placeholder="Please provide details..." required></textarea>
+            </div>
+
+            <button type="submit" id="submitBtn">Submit Request</button>
+            <div id="statusBox" class="status-msg"></div>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('supportForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusBox = document.getElementById('statusBox');
+
+        // Simple regex pattern for robust email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevents the browser from reloading the page
+            
+            // Clear previous statuses
+            statusBox.className = 'status-msg';
+            statusBox.style.display = 'none';
+
+            // Gather values
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const category = document.getElementById('category').value;
+            const message = document.getElementById('message').value.trim();
+
+            // 1. Basic Validation checks (FR-1.4)
+            if (!name || !email || !category || !message) {
+                showStatus('All fields are required.', 'error');
+                return;
+            }
+
+            if (!emailRegex.test(email)) {
+                showStatus('Please enter a valid email address.', 'error');
+                return;
+            }
+
+            // Disable submit button during active submission
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            // 2. Prepare Payload
+            const payload = {
+                name: name,
+                email: email,
+                category: category,
+                message: message,
+                timestamp: new Date().toISOString()
+            };
+
+            // 3. Send Data to n8n Webhook
+            // NOTE: Replace this placeholder with your live n8n webhook URL once ready.
+            // For testing before n8n is set up, you can use a test service like https://httpbin.org/post
+            const webhookUrl = 'https://httpbin.org/post'; 
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    showStatus('Thank you! Your request has been successfully submitted.', 'success');
+                    form.reset();
+                } else {
+                    showStatus('Server error. Please try again later.', 'error');
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                showStatus('Unable to reach the server. Check your network and try again.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Request';
+            }
+        });
+
+        function showStatus(text, type) {
+            statusBox.textContent = text;
+            statusBox.style.display = 'block';
+            if (type === 'success') {
+                statusBox.classList.add('status-success');
+            } else {
+                statusBox.classList.add('status-error');
+            }
+        }
+    </script>
+</body>
+</html>
