@@ -212,7 +212,7 @@
             // 3. Send Data to n8n Webhook
             // NOTE: Replace this placeholder with your live n8n webhook URL once ready.
             // For testing before n8n is set up, you can use a test service like https://httpbin.org/post
-            const webhookUrl = 'https://httpbin.org/post'; 
+            const webhookUrl = 'http://localhost:5678/webhook-test/support-ticket'; 
 
             try {
                 const response = await fetch(webhookUrl, {
